@@ -1,0 +1,33 @@
+name: Build ESP32 firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create secrets
+        run: |
+          cat > secrets.yaml <<'EOF'
+          wifi_ssid: "GrowCabinet"
+          wifi_password: "12345678"
+          api_encryption_key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+          ota_password: "12345678"
+          EOF
+
+      - name: Build ESPHome
+        uses: esphome/build-action@v7.0.0
+        with:
+          yaml-file: esp32-x8-relay.yaml
+
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: ESP32-firmware
+          path: |
+            **/*.factory.bin
+            **/*.ota.bin
